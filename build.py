@@ -28,6 +28,7 @@ while len(releases):
         print("No web asset found in release, using older!!")
         continue
     web_asset = web_assets[0]
+    break
 if not web_asset:
     print("web asset not found in any releases!")
     exit(1)
