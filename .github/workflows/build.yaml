@@ -17,7 +17,7 @@ jobs:
         run: python build.py
       
       - name: upload
-        uses: actions/upload-pages-artifact
+        uses: actions/upload-pages-artifact@main
         with:
           path: web
 
