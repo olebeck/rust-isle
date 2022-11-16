@@ -5,6 +5,8 @@ const default_params = {
 }
 const hisp_swf = "horseisle.swf";
 
+const err_elem = document.querySelector("#error");
+
 const url_params = Object.fromEntries(new URLSearchParams(location.hash.slice(1)).entries());
 const params = Object.assign(Object.assign({}, default_params), url_params);
 
@@ -25,8 +27,15 @@ async function load() {
         }
         
         return new Promise((resolve, reject) => {
-            const url = `ws://${host}:${port}`;
-            const ws = new WebSocket(url);
+            let ws;
+            try {
+                const url = `wsss://${host}:${port}`;
+                ws = new WebSocket(url);
+            } catch (error) {
+                console.error(error);
+                err_elem.innerText = error;
+                reject(error);
+            }
 
             ws.onopen = () => {
                 resolve({
