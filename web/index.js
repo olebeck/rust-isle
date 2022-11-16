@@ -38,9 +38,12 @@ async function load() {
                 console.error(error);
                 err_elem.innerText = error;
                 reject(error);
+                return;
             }
+            err_elem.innerText = `Connecting to ${ws_scheme}://${params.SERVER}:${port}`;
 
             ws.onopen = () => {
+                err_elem.innerText = "";
                 resolve({
                     send: (data) => {
                         const buf = new Uint8Array(data.length+1);
