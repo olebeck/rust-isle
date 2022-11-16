@@ -1,6 +1,3 @@
-const secure = location.protocol == "https:";
-const ws_scheme = secure ? "wss" : "ws";
-
 const PROXY_HOST = "xmlsocket-ws.deno.dev";
 const default_params = {
     "SERVER": "game.islehorse.com",
@@ -35,9 +32,9 @@ async function load() {
         }
         
         return new Promise((resolve, reject) => {
-            let url = `${ws_scheme}://${host}:${port}`;
+            let url = `ws://${host}:${port}`;
             if(params.PROXY) {
-                url = `${ws_scheme}://${PROXY_HOST}/?hostname=${host}&port=${port}`
+                url = `ws://${PROXY_HOST}/?hostname=${host}&port=${port}`
             }
 
             let ws;
