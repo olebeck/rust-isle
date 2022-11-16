@@ -1,4 +1,4 @@
-const secure = location.protocol.endsWith("s");
+const secure = location.protocol == "https:";
 const ws_scheme = secure ? "wss" : "ws";
 
 const default_params = {
