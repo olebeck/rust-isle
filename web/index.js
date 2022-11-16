@@ -1,10 +1,10 @@
 const secure = location.protocol == "https:";
 const ws_scheme = secure ? "wss" : "ws";
 
+const PROXY_HOST = "xmlsocket-ws.deno.dev";
 const default_params = {
     "SERVER": "game.islehorse.com",
-    "PORT": "12321",
-    "USER": ""
+    "PORT": "12321"
 }
 const hisp_swf = "horseisle.swf";
 
@@ -35,7 +35,11 @@ async function load() {
         }
         
         return new Promise((resolve, reject) => {
-            const url = `${ws_scheme}://${host}:${port}`;
+            let url = `${ws_scheme}://${host}:${port}`;
+            if(params.PROXY) {
+                url = `${ws_scheme}://${PROXY_HOST}/?hostname=${host}&port=${port}`
+            }
+
             let ws;
             try {
                 ws = new WebSocket(url);
@@ -58,7 +62,7 @@ async function load() {
                     close: () => { ws.close(); },
                 });
             }
-            ws.onerror = (e) => { err(`${e.name}: ${e.message}`); reject(e); }
+            ws.onerror = (e) => { err(`websocket error`); reject(e); }
             ws.onmessage = async (message) => {
                 const buf = new Uint8Array(await message.data.arrayBuffer());
                 handle.receive(buf.slice(0, buf.length-1));
