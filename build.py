@@ -18,6 +18,7 @@ releases: list = s_gh.get(f"https://api.github.com/repos/{RUFFLE_REPO}/releases"
 if len(releases) == 0:
     print("No releases!")
     exit(0)
+releases.sort(key=lambda k: -k['id'])
 
 web_asset = None
 while len(releases):
