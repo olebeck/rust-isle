@@ -48,7 +48,7 @@ print("extracting swfs")
 with zipfile.PyZipFile(io.BytesIO(r), "r") as z:
     for inf in z.infolist():
         path = inf.filename.split("/")[1:]
-        if (path[-1].endswith(".swf") or path[-1].startswith("bgm")) and path[0] == "game-site":
+        if (path[-1].endswith(".swf") or path[-1].startswith("bgm") or path[-1] == "map750.png") and path[0] == "game-site":
             data = z.read(inf)
             opath = f"./web/{'/'.join(path[1:])}"
             os.makedirs(os.path.dirname(opath), exist_ok=True)
