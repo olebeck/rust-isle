@@ -23,6 +23,11 @@ async function load() {
     player.style.height = "500px";
     document.querySelector("#flash").append(player);
 
+    function err(msg) {
+        console.error(msg);
+        err_elem.innerText = msg;
+    }
+
     player.onXmlSocketConnect = async (host, port, handle) => {
         // handle weird bug
         if(host != params.SERVER || port != params.PORT) {
@@ -30,17 +35,17 @@ async function load() {
         }
         
         return new Promise((resolve, reject) => {
+            const url = `${ws_scheme}://${host}:${port}`;
             let ws;
             try {
-                const url = `${ws_scheme}://${host}:${port}`;
                 ws = new WebSocket(url);
             } catch (error) {
-                console.error(error);
-                err_elem.innerText = error;
+                err(error);
                 reject(error);
-                return;
             }
-            err_elem.innerText = `Connecting to ${ws_scheme}://${params.SERVER}:${port}`;
+            if(!ws) return;
+
+            err_elem.innerText = `Connecting to ${url}`;
 
             ws.onopen = () => {
                 err_elem.innerText = "";
@@ -53,12 +58,12 @@ async function load() {
                     close: () => { ws.close(); },
                 });
             }
-            ws.onerror = (e) => { reject(e); }
+            ws.onerror = (e) => { err(e); reject(e); }
             ws.onmessage = async (message) => {
                 const buf = new Uint8Array(await message.data.arrayBuffer());
                 handle.receive(buf.slice(0, buf.length-1));
             }
-            ws.onclose = () => { handle.close(); }
+            ws.onclose = () => { handle.aclose(); }
         });
     }
 
