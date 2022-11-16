@@ -63,7 +63,7 @@ async function load() {
                 const buf = new Uint8Array(await message.data.arrayBuffer());
                 handle.receive(buf.slice(0, buf.length-1));
             }
-            ws.onclose = () => { handle.aclose(); }
+            ws.onclose = () => { handle.close(); }
         });
     }
 
