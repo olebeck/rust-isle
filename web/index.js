@@ -25,7 +25,7 @@ async function load() {
 
     function err(msg) {
         console.error(msg);
-        err_elem.innerText = msg;
+        err_elem.innerText = String(msg);
     }
 
     player.onXmlSocketConnect = async (host, port, handle) => {
@@ -58,7 +58,7 @@ async function load() {
                     close: () => { ws.close(); },
                 });
             }
-            ws.onerror = (e) => { err(e); reject(e); }
+            ws.onerror = (e) => { err(`${e.name}: ${e.message}`); reject(e); }
             ws.onmessage = async (message) => {
                 const buf = new Uint8Array(await message.data.arrayBuffer());
                 handle.receive(buf.slice(0, buf.length-1));
