@@ -1,3 +1,6 @@
+const secure = location.protocol.endsWith("s");
+const ws_scheme = secure ? "wss" : "ws";
+
 const default_params = {
     "SERVER": "game.islehorse.com",
     "PORT": "12321",
@@ -29,7 +32,7 @@ async function load() {
         return new Promise((resolve, reject) => {
             let ws;
             try {
-                const url = `wsss://${host}:${port}`;
+                const url = `${ws_scheme}://${host}:${port}`;
                 ws = new WebSocket(url);
             } catch (error) {
                 console.error(error);
