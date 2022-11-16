@@ -14,11 +14,22 @@ if os.path.exists(RUFFLE_DIR):
 
 
 print("Getting release info")
-releases = s_gh.get(f"https://api.github.com/repos/{RUFFLE_REPO}/releases").json()
-release = releases[0]
-assets = s_gh.get(release["assets_url"]).json()
-web_asset = list(filter(lambda k: k["name"].endswith("web-selfhosted.zip"), assets))[0]
+releases: list = s_gh.get(f"https://api.github.com/repos/{RUFFLE_REPO}/releases").json()
+if len(releases) == 0:
+    print("No releases!")
+    exit(0)
 
+web_asset = None
+while len(releases):
+    release = releases.pop(0)
+    web_assets = list(filter(lambda k: k["name"].endswith("web-selfhosted.zip"), release["assets"]))
+    if len(web_assets) == 0:
+        print("No web asset found in release, using older!!")
+        continue
+    web_asset = web_assets[0]
+if not web_asset:
+    print("web asset not found in any releases!")
+    exit(1)
 
 print(f"Downloading {web_asset['name']}")
 r = s_gh.get(web_asset['browser_download_url']).content
