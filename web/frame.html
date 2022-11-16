@@ -11,12 +11,11 @@
     <iframe id="frame"></iframe>
     <script>
         (async () => {
-            const index = await (await fetch("index.html")).text();
+            let index = await (await fetch("index.html")).text();
+            index = `<base href="${location.href}">` + index;
             const iframe = document.getElementById("frame");
-            iframe.src = "about:blank";
-            iframe.contentWindow.document.open();
-            iframe.contentWindow.document.write(index);
-            iframe.contentWindow.document.close();
+            iframe.src = "data:text/html;base64,"+btoa(index);
         })();
     </script>
+    <base href=""
 </body>
