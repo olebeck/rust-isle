@@ -11,8 +11,8 @@
     <iframe id="frame"></iframe>
     <script>
         (async () => {
-            let index = await (await fetch("index.html")).text();
-            index = `<base href="${location.href}">` + index;
+            const index_content = await (await fetch("index.html")).text();
+            const index = `<base href="http://${location.host}/${location.pathname}">${'<'}script>window.search="${location.search}";${'<'}/script>${index_content}`;
             const iframe = document.getElementById("frame");
             iframe.src = "data:text/html;base64,"+btoa(index);
         })();

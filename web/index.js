@@ -1,3 +1,5 @@
+window.search = window.search ?? location.search;
+
 const PROXY_HOST = "xmlsocket-ws.deno.dev";
 const default_params = {
     "SERVER": "game.islehorse.com",
@@ -7,8 +9,9 @@ const hisp_swf = "horseisle.swf";
 
 const err_elem = document.querySelector("#error");
 
-const url_params = Object.fromEntries(new URLSearchParams(location.hash.slice(1)).entries());
+const url_params = Object.fromEntries(new URLSearchParams(window.search).entries());
 const params = Object.assign(Object.assign({}, default_params), url_params);
+console.log({params});
 
 const RufflePlayer = window.RufflePlayer || {};
 const ruffle = window.RufflePlayer.newest();
