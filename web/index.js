@@ -10,7 +10,7 @@ const hisp_swf = "horseisle.swf";
 
 const err_elem = document.querySelector("#error");
 
-const url_params = Object.fromEntries(new URLSearchParams(window.search).entries());
+const url_params = Object.fromEntries(new URLSearchParams(location.search).entries());
 const params = Object.assign(Object.assign({}, default_params), url_params);
 console.log({params});
 
