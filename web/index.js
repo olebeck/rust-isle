@@ -65,8 +65,16 @@ async function load() {
             }
             ws.onerror = (e) => { err(`websocket error`); reject(e); }
             ws.onmessage = async (message) => {
-                const buf = new Uint8Array(await message.data.arrayBuffer());
-                handle.receive(buf.slice(0, buf.length-1));
+                if(typeof message.data == "string") {
+                    const data = JSON.parse(message.data);
+                    if(data.error) {
+                        err(data.error);
+                        ws.close();
+                    }
+                } else {
+                    const buf = new Uint8Array(await message.data.arrayBuffer());
+                    handle.receive(buf.slice(0, buf.length-1));
+                }
             }
             ws.onclose = () => { handle.close(); }
         });

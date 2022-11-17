@@ -19,51 +19,64 @@ serve(async (req: Request) => {
         return new Response("this is a websocket api.", {status: 400});
     }
 
-    const connection = await Deno.connect({ hostname, port }).catch(e => {
-        console.error(e);
-    });
-    if(!connection) {
-        return new Response("error connecting.", {status: 500});
-    }
 
-    const { socket, response } = Deno.upgradeWebSocket(req);
-    socket.onmessage = async (m: MessageEvent) => {
-        if(m.data instanceof ArrayBuffer) {
-            const data = new Uint8Array(m.data);
-            if(data[data.length-1] !== 0) return;
-            await connection.write(data).catch(tcp_err);
+    const { socket, response }: {socket: WebSocket, response: Response} = Deno.upgradeWebSocket(req);
+
+    const ws_senderr = (msg) => {
+        console.error(msg);
+        if(socket.readyState == socket.OPEN) {
+            socket.send(JSON.stringify({"error": msg}));
+            socket.close();
         }
     }
-    socket.onclose = () => {
-        connection.close();
-    }
-    const tcp_err = (reason: any) => {
-        console.error("tcp error", reason);
-        socket.close();
-        connection.close();
-    }
-
-    const connection_buf = new Uint8Array(4096);
-    let buffered: Array<Array<number>> = [];
-    (async () => {
-        while(true) {
-            const n = await connection.read(connection_buf).catch(tcp_err);
-            if(!n) break;
-            let data = connection_buf.slice(0, n);
-            while(data.length) {
-                const pos_0 = data.findIndex((e) => e === 0);
-                if(pos_0 !== -1) {
-                    buffered.push(Array.from(data.slice(0, pos_0+1)));
-                    socket.send(Uint8Array.from(buffered.flat()));
-                    data = data.slice(pos_0+1);
-                    buffered = [];
-                } else {
-                    buffered.push(Array.from(data));
-                    break;
-                }
+    
+    socket.onopen = async () => {
+        const connection = await Deno.connect({ hostname, port }).catch(e => {
+            console.error(e);
+            ws_senderr(String(e));
+        });
+        if(!connection) return;
+        
+        const tcp_err = (reason: any) => {
+            console.error(reason);
+            ws_senderr(String(reason));
+            connection.close();
+        }
+        
+        socket.onmessage = async (m: MessageEvent) => {
+            if(m.data instanceof ArrayBuffer) {
+                const data = new Uint8Array(m.data);
+                if(data[data.length-1] !== 0) return;
+                await connection.write(data).catch(tcp_err);
             }
         }
-    })();
+        
+        socket.onclose = () => {
+            connection.close();
+        }
+        
+        const connection_buf = new Uint8Array(4096);
+        let buffered: Array<Array<number>> = [];
+        (async () => {
+            while(true) {
+                const n = await connection.read(connection_buf).catch(tcp_err);
+                if(!n) break;
+                let data = connection_buf.slice(0, n);
+                while(data.length) {
+                    const pos_0 = data.findIndex((e) => e === 0);
+                    if(pos_0 !== -1) {
+                        buffered.push(Array.from(data.slice(0, pos_0+1)));
+                        socket.send(Uint8Array.from(buffered.flat()));
+                        data = data.slice(pos_0+1);
+                        buffered = [];
+                    } else {
+                        buffered.push(Array.from(data));
+                        break;
+                    }
+                }
+            }
+        })();
+    };
 
     return response;
 });
